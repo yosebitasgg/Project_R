@@ -92,7 +92,6 @@ Mujer corresponde a **sexo = 2**
 
 
 ### Querie 1
-
 Para personas  jóvenes de estrato bajo, ¿qué es más probable que su viaje dure más de 30 minutos o que dure menos?
 
 Para este querie vamos a ocupar las siguientes columnas:
@@ -102,6 +101,7 @@ A, E, T1, T2
 library(bnlearn)
 ```
 
+#### Filtro del dataframe
 ```{r}
 data_1 = df_seleccionado[, c("A", "E", "T1", "T2")]
 
@@ -112,7 +112,7 @@ data_convertida = as.data.frame(lapply(data_1, as.factor))
 data_convertida
 ```
 
-
+#### Calculo de la DAG
 ```{r}
 best_dag = hc(data_convertida)
 ```
@@ -125,6 +125,8 @@ modelstring(best_dag)
 ```{r}
 score(best_dag, data = data_convertida, type = "aic")
 ```
+
+#### Grafica de la DAG
 ```{r}
 graphviz.plot(best_dag, shape = "ellipse")
 
@@ -133,6 +135,7 @@ graphviz.plot(best_dag, shape = "ellipse")
 bn = bn.fit(best_dag, data = data_convertida)
 ```
 
+#### Querie de probabilidades
 ```{r}
 prob_mas_30 <- cpquery(bn, 
                        event = (as.numeric(as.character(T2)) - as.numeric(as.character(T1)) > 30), 
@@ -150,7 +153,7 @@ prob_menos_30 <- cpquery(bn,
 
 prob_menos_30
 ```
-
+#### Conclusion
 Lo mas probable es que el viaje dure menos de 30 minutos con una probabilidad de 0.821.
 
 ### Querie 2: 
