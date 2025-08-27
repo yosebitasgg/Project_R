@@ -1,0 +1,167 @@
+---
+title: "Situación Problema: Entrega 1"
+author: "Yoseba & Pedro & Santiago"
+format:
+   html:
+     toc: true
+     html-math-method: katex
+     embed-resources: true
+     self-contained-math: true
+     df-print: kable
+editor: source
+---
+### Extracción de datos
+
+```{r}
+data = read.csv("../data/eod_2017_csv/tviaje_eod2017/conjunto_de_datos/tviaje.csv", stringsAsFactors = TRUE)
+head(data)
+```
+
+
+#### Diccinario de columnas:
+
+```{r}
+diccionario = read.csv("../data/eod_2017_csv/tviaje_eod2017/diccionario_de_datos/diccionario_datos_tviaje.csv", stringsAsFactors = TRUE)
+print(diccionario)
+```
+
+Se renombraran las columnas de esta manera
+
+edad = A
+sexo = S
+estrato = E
+p5_11a = D 
+p5_9_1 = T1
+p5_10_2 = T2
+p5_15_01 = C
+p5_15_07 = B
+p5_15_09 = M
+p5_15_02 = Mi
+p5_15_05 = Me
+p5_15_06 = M1
+p5_15_08 = Au
+p5_15_11 = Mx
+p5_15_10 = Tr
+p5_15_12 = Tl
+p5_15_13 = Ts
+
+Significado de cada columna:
+
+A = Edad
+S = Sexo 
+E = Estrato
+D = ¿Qué tipo de lugar fue el destino de su viaje?
+T1 = ¿A qué hora comenzó?
+T2 = ¿A qué hora terminó?
+C = ¿cuántas veces usó 01 Automóvil?
+B = ¿cuántas veces usó 07 Bicicleta?
+M = ¿cuántas veces usó  09 Moto?
+Mi = ¿cuántas veces usó 02 Colectivo/Micro?
+Me = ¿cuántas veces usó  05 Metro?
+M1 = ¿cuántas veces usó 06 Autobús RTP o M1?
+Au = ¿cuántas veces usó 08 Autobús?
+Mx = ¿cuántas veces usó 11 Metrobús o Mexibús?
+Tr = ¿cuántas veces usó 10 Trolebús?
+Tl = ¿cuántas veces usó 12 Tren ligero?
+Ts = ¿cuántas veces usó 13 Tren suburbano?
+
+
+```{r}
+columnas_deseadas = c("edad", "sexo", "p5_11a", "estrato", "p5_9_1", "p5_10_2", 
+                     "p5_15_01", "p5_15_07", "p5_15_09", "p5_15_02", 
+                     "p5_15_05", "p5_15_06", "p5_15_08", "p5_15_11", 
+                     "p5_15_10", "p5_15_12", "p5_15_13")
+
+df_seleccionado = data[, columnas_deseadas]
+
+names(df_seleccionado) = c("A", "S", "D", "E", "T1", "T2", 
+                          "C", "B", "M", "Mi", "Me", "M1", 
+                          "Au", "Mx", "Tr", "Tl", "Ts")
+
+df_seleccionado
+```
+
+```{r}
+sexo = read.csv("../data/eod_2017_csv/tviaje_eod2017/catalogos/sexo.csv", stringsAsFactors = TRUE)
+head(sexo)
+```
+
+Hombre corresponde a **sexo = 1**
+
+Mujer corresponde a **sexo = 2**
+
+
+### Querie 1
+Para personas  jóvenes de estrato bajo, ¿qué es más probable que su viaje dure más de 30 minutos o que dure menos?
+
+Para este querie vamos a ocupar las siguientes columnas:
+A, E, T1, T2
+
+```{r}
+library(bnlearn)
+```
+
+#### Filtro del dataframe
+```{r}
+data_1 = df_seleccionado[, c("A", "E", "T1", "T2")]
+
+data_1
+```
+```{r}
+data_convertida = as.data.frame(lapply(data_1, as.factor))
+data_convertida
+```
+
+#### Calculo de la DAG
+```{r}
+best_dag = hc(data_convertida)
+```
+
+
+```{r}
+modelstring(best_dag)
+
+```
+```{r}
+score(best_dag, data = data_convertida, type = "aic")
+```
+
+#### Grafica de la DAG
+```{r}
+graphviz.plot(best_dag, shape = "ellipse")
+
+```
+```{r}
+bn = bn.fit(best_dag, data = data_convertida)
+```
+
+#### Querie de probabilidades
+```{r}
+prob_mas_30 <- cpquery(bn, 
+                       event = (as.numeric(as.character(T2)) - as.numeric(as.character(T1)) > 30), 
+                       evidence = (E == "1" & as.numeric(as.character(A)) < 18), 
+                       n = 10^6)
+
+prob_mas_30
+```
+
+```{r}
+prob_menos_30 <- cpquery(bn, 
+                       event = (as.numeric(as.character(T2)) - as.numeric(as.character(T1)) <= 30), 
+                       evidence = (E == "1" & as.numeric(as.character(A)) < 18), 
+                       n = 10^6)
+
+prob_menos_30
+```
+#### Conclusion
+Lo mas probable es que el viaje dure menos de 30 minutos con una probabilidad de 0.821.
+
+### Querie 2: 
+¿Quién gasta más en transporte, las personas adultas que son mujeres y van a sus trabajos? ¿O las mujeres jóvenes que van a sus hogares?
+
+### Querie 3: 
+¿Qué tan probable es que una persona viaje entre semana con un transporte privado dado que sea una mujer entre 60 y 80 años?
+
+## Querie 4: 
+¿Los viajes en estratos bajos tienden a ser más largos en transporte público que en automóvil?
+
