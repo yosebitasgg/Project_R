@@ -1,0 +1,65 @@
+---
+title: "Redes bayesianas multinomiales"
+subtitle: "Análisis de métodos de razonamiento e incertidumbre"
+author:
+  - name: "Yoseba Michel Mireles Ahumada"
+    affiliation: "ITESM"
+    email: "A01612830"
+  - name: "Pedro Manuel Montes Valle " 
+    affiliation: "ITESM"
+    email: "A01"
+  - name: "Santiago Pérez Mendoza"
+    affiliation: "ITESM"
+    email: "A01"
+date: today
+abstract: |
+  Resumen del artículo en español. Debe ser conciso y describir 
+  el propósito, métodos, resultados principales y conclusiones 
+  del estudio. Máximo 250 palabras.
+keywords: ["palabra clave 1", "palabra clave 2", "palabra clave 3"]
+format:
+  pdf:
+    documentclass: article
+    geometry:
+      - top=2.5cm
+      - bottom=2.5cm
+      - left=2.5cm
+      - right=2.5cm
+    fontsize: 11pt
+    linestretch: 1.5
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    cite-method: biblatex
+    bibliography: referencias.bib
+    csl: apa.csl
+    fig-cap-location: bottom
+    tbl-cap-location: top
+    crossref:
+      fig-title: "Figura"
+      tbl-title: "Tabla"
+      eq-title: "Ecuación"
+    include-in-header:
+      - text: |
+          \usepackage{amsmath}
+          \usepackage{amsfonts}
+          \usepackage{amssymb}
+          \usepackage{graphicx}
+          \usepackage{float}
+lang: es
+editor: source
+---
+
+### Introducción
+Este articulo bla bla bla
+
+### Metodología
+
+
+### Aplicación
+
+
+### Conclusiones
+
+
+### Referencias
