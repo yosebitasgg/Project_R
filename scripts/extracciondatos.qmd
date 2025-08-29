@@ -1,0 +1,40 @@
+---
+title: "ExtraccionDatos"
+author: "Yoseba & Pedro & Santiago"
+format:
+   html:
+     toc: true
+     html-math-method: katex
+     embed-resources: true
+     self-contained-math: true
+     df-print: kable
+editor: source
+---
+
+## Extraccion de datos
+
+```{r}
+data = read.csv("../data/eod_2017_csv/tvivienda_eod2017/catalogos/distrito.csv", stringsAsFactors = TRUE)
+head(data)
+```
+```{r}
+data = read.csv("../data/eod_2017_csv/tvivienda_eod2017/catalogos/ent.csv", stringsAsFactors = TRUE)
+head(data)
+```
+```{r}
+data = read.csv("../data/eod_2017_csv/tvivienda_eod2017/catalogos/estrato.csv", stringsAsFactors = TRUE)
+head(data)
+```
+```{r}
+data = read.csv("../data/eod_2017_csv/tvivienda_eod2017/catalogos/mun.csv", stringsAsFactors = TRUE)
+head(data)
+```
+```{r}
+data = read.csv("../data/eod_2017_csv/tvivienda_eod2017/catalogos/tloc.csv", stringsAsFactors = TRUE)
+head(data)
+```
+
+```{r}
+data = read.csv("../data/eod_2017_csv/tvivienda_eod2017/conjunto_de_datos/tvivienda.csv", stringsAsFactors = TRUE)
+head(data)
+```
