@@ -16,6 +16,10 @@ editor: source
 data = read.csv("../data/eod_2017_csv/tviaje_eod2017/conjunto_de_datos/tviaje.csv", stringsAsFactors = TRUE)
 head(data)
 ```
+```{r}
+data2 = read.csv("../data/eod_2017_csv/ttransporte_eod2017/conjunto_de_datos/ttransporte.csv", stringsAsFactors = TRUE)
+head(data2)
+```
 
 
 #### Diccinario de columnas:
@@ -24,7 +28,10 @@ head(data)
 diccionario = read.csv("../data/eod_2017_csv/tviaje_eod2017/diccionario_de_datos/diccionario_datos_tviaje.csv", stringsAsFactors = TRUE)
 print(diccionario)
 ```
-
+```{r}
+diccionario2 = read.csv("../data/eod_2017_csv/ttransporte_eod2017/diccionario_de_datos/diccionario_datos_ttransporte.csv", stringsAsFactors = TRUE)
+print(diccionario2)
+```
 Se renombraran las columnas de esta manera
 
 edad = A
@@ -44,6 +51,7 @@ p5_15_11 = Mx
 p5_15_10 = Tr
 p5_15_12 = Tl
 p5_15_13 = Ts
+p5_3 = Day
 
 Significado de cada columna:
 
@@ -64,6 +72,7 @@ Mx = ¿cuántas veces usó 11 Metrobús o Mexibús?
 Tr = ¿cuántas veces usó 10 Trolebús?
 Tl = ¿cuántas veces usó 12 Tren ligero?
 Ts = ¿cuántas veces usó 13 Tren suburbano?
+Day = Día de viaje
 
 
 ```{r}
@@ -156,8 +165,16 @@ prob_menos_30
 #### Conclusion
 Lo mas probable es que el viaje dure menos de 30 minutos con una probabilidad de 0.821.
 
+
 ### Querie 2: 
 ¿Quién gasta más en transporte, las personas adultas que son mujeres y van a sus trabajos? ¿O las mujeres jóvenes que van a sus hogares?
+
+```{r}
+col_deseadas <- c("sexo", "edad", "p5_23", "p5_11a")
+df_selec <- data[, col_deseadas]
+names(df_selec) <- c("S", "A", "T", "D")
+```
+
 
 ```{r}
 df_selec$GrupoEdad <- ifelse(df_selec$A < 18, "joven", "adulto")
@@ -238,7 +255,21 @@ En promedio gastan mas las personas jovenes que van a sus hogares
 #### Filtro del dataframe
 
 ```{r}
-data_2 = df_seleccionado[, c("Day", "C", "S", "A")]
+columnas_deseadas2 = c("edad", "p5_3", "sexo", "p5_11a", "estrato", "p5_9_1", "p5_10_2", 
+                     "p5_15_01", "p5_15_07", "p5_15_09", "p5_15_02", 
+                     "p5_15_05", "p5_15_06", "p5_15_08", "p5_15_11", 
+                     "p5_15_10", "p5_15_12", "p5_15_13")
+
+df_seleccionado2 = data[, columnas_deseadas2]
+
+names(df_seleccionado2) = c("A", "Day", "S", "D", "E", "T1", "T2", 
+                          "C", "B", "M", "Mi", "Me", "M1", 
+                          "Au", "Mx", "Tr", "Tl", "Ts")
+
+df_seleccionado2
+```
+```{r}
+data_2 = df_seleccionado2[, c("Day", "C", "S", "A")]
 
 data_2
 ```
@@ -286,6 +317,8 @@ prob_1_S <- cpquery(bn, event = ((Day == "1") & (C == "1")), evidence = ((S == "
 prob_1_S
 ```
 
+#### Conclusión
+La probabilidad de que una persona viaje entre semana con un transporte privado dado que sea una mujer entre 60 y 80 años es de 0.5742265.
 
 ## Querie 4: 
 ¿Los viajes en estratos bajos tienden a ser más largos en transporte público que en automóvil?
