@@ -231,8 +231,61 @@ gasto_jovenes
 En promedio gastan mas las personas jovenes que van a sus hogares
 
 
-### Querie 3: 
+### Querie 3:
+
 ¿Qué tan probable es que una persona viaje entre semana con un transporte privado dado que sea una mujer entre 60 y 80 años?
+
+#### Filtro del dataframe
+
+```{r}
+data_2 = df_seleccionado[, c("Day", "C", "S", "A")]
+
+data_2
+```
+
+```{r}
+data_convertid2 = as.data.frame(lapply(data_2, as.factor))
+data_convertid2
+```
+
+#### Calculo de la DAG
+
+```{r}
+best_dag2 = hc(data_convertid2)
+```
+
+```{r}
+modelstring(best_dag2)
+
+```
+
+```{r}
+colSums(is.na(data_convertid2))
+
+data_cc <- na.omit(data_convertid2)
+
+score(best_dag2, data = data_cc, type = "aic")
+```
+
+#### Grafica de la DAG
+
+```{r}
+graphviz.plot(best_dag2, shape = "ellipse")
+
+```
+
+```{r}
+bn = bn.fit(best_dag2, data = data_convertid2)
+```
+
+#### Querie de probabilidades
+
+```{r}
+prob_1_S <- cpquery(bn, event = ((Day == "1") & (C == "1")), evidence = ((S == "2") & ((as.numeric(as.character(A))>= 60)&(as.numeric(as.character(A)) <= 80 ))), n = 10^6)
+
+prob_1_S
+```
+
 
 ## Querie 4: 
 ¿Los viajes en estratos bajos tienden a ser más largos en transporte público que en automóvil?
