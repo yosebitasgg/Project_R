@@ -159,6 +159,78 @@ Lo mas probable es que el viaje dure menos de 30 minutos con una probabilidad de
 ### Querie 2: 
 ¿Quién gasta más en transporte, las personas adultas que son mujeres y van a sus trabajos? ¿O las mujeres jóvenes que van a sus hogares?
 
+```{r}
+df_selec$GrupoEdad <- ifelse(df_selec$A < 18, "joven", "adulto")
+```
+
+```{r}
+df_selec$T <- suppressWarnings(as.numeric(df_selec$T))
+df_selec$S <- as.factor(df_selec$S)        
+df_selec$D <- as.factor(df_selec$D)          
+df_selec$GrupoEdad <- factor(df_selec$GrupoEdad, levels = c("joven","adulto"))
+```
+
+```{r}
+data_3 <- df_selec[, c("S", "GrupoEdad", "D", "T")]
+```
+
+```{r}
+data_3 <- na.omit(data_3)
+```
+
+```{r}
+data_conv = as.data.frame(lapply(data_3, as.factor))
+data_conv
+```
+
+```{r}
+set.seed(123)
+best_dag <- hc(data_3, score = "bic-cg")      # <- importante para mixtos
+bn <- bn.fit(best_dag, data = data_3)
+```
+
+```{r}
+modelstring(best_dag)
+```
+```{r}
+graphviz.plot(best_dag, shape = "ellipse")
+```
+
+```{r}
+library(bnlearn)
+set.seed(123)
+best_dag <- hc(data_3, score = "bic-cg")
+bn <- bn.fit(best_dag, data = data_3)
+
+```
+
+```{r}
+muestra_adultas <- cpdist(
+  bn,
+  nodes = "T",
+  evidence = list(S = "2", GrupoEdad = "adulto", D = "3"),
+  method = "lw",
+  n = 1e5
+)
+gasto_adultas <- mean(muestra_adultas$T, na.rm = TRUE)
+gasto_adultas
+```
+
+```{r}
+muestra_jovenes <- cpdist(
+  bn,
+  nodes = "T",
+  evidence = list(S = "2", GrupoEdad = "joven", D = "1"),
+  method = "lw",
+  n = 1e5
+)
+gasto_jovenes <- mean(muestra_jovenes$T, na.rm = TRUE)
+gasto_jovenes
+```
+#### Conclusion
+En promedio gastan mas las personas jovenes que van a sus hogares
+
+
 ### Querie 3: 
 ¿Qué tan probable es que una persona viaje entre semana con un transporte privado dado que sea una mujer entre 60 y 80 años?
 
