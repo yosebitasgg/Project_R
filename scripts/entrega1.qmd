@@ -20,7 +20,7 @@ data2 = read.csv("../data/eod_2017_csv/ttransporte_eod2017/conjunto_de_datos/ttr
 ```
 
 
-#### Diccinario de columnas:
+#### Diccionario de columnas:
 
 ```{r}
 diccionario = read.csv("../data/eod_2017_csv/tviaje_eod2017/diccionario_de_datos/diccionario_datos_tviaje.csv", stringsAsFactors = TRUE)
@@ -31,44 +31,80 @@ diccionario2 = read.csv("../data/eod_2017_csv/ttransporte_eod2017/diccionario_de
 Se renombraran las columnas de esta manera
 
 edad = A
+
 sexo = S
+
 estrato = E
+
 p5_11a = D 
+
 p5_9_1 = T1
+
 p5_10_2 = T2
+
 p5_15_01 = C
+
 p5_15_07 = B
+
 p5_15_09 = M
+
 p5_15_02 = Mi
+
 p5_15_05 = Me
+
 p5_15_06 = M1
+
 p5_15_08 = Au
+
 p5_15_11 = Mx
+
 p5_15_10 = Tr
+
 p5_15_12 = Tl
+
 p5_15_13 = Ts
+
 p5_3 = Day
+
 
 Significado de cada columna:
 
 A = Edad
+
 S = Sexo 
+
 E = Estrato
+
 D = ¿Qué tipo de lugar fue el destino de su viaje?
+
 T1 = ¿A qué hora comenzó?
+
 T2 = ¿A qué hora terminó?
+
 C = ¿cuántas veces usó 01 Automóvil?
+
 B = ¿cuántas veces usó 07 Bicicleta?
+
 M = ¿cuántas veces usó  09 Moto?
+
 Mi = ¿cuántas veces usó 02 Colectivo/Micro?
+
 Me = ¿cuántas veces usó  05 Metro?
+
 M1 = ¿cuántas veces usó 06 Autobús RTP o M1?
+
 Au = ¿cuántas veces usó 08 Autobús?
+
 Mx = ¿cuántas veces usó 11 Metrobús o Mexibús?
+
 Tr = ¿cuántas veces usó 10 Trolebús?
+
 Tl = ¿cuántas veces usó 12 Tren ligero?
+
 Ts = ¿cuántas veces usó 13 Tren suburbano?
+
 Day = Día de viaje
+
 
 
 ```{r}
@@ -147,8 +183,8 @@ prob_menos_30 <- cpquery(bn, event = (as.numeric(as.character(T2)) - as.numeric(
 
 prob_menos_30
 ```
-#### Conclusion
-Lo mas probable es que el viaje dure menos de 30 minutos con una probabilidad de 0.821.
+#### Conclusión
+Lo más probable es que el viaje dure menos de 30 minutos con una probabilidad de 0.821.
 
 
 ### Querie 2: 
@@ -228,7 +264,7 @@ muestra_jovenes <- cpdist(
 gasto_jovenes <- mean(muestra_jovenes$T, na.rm = TRUE)
 gasto_jovenes
 ```
-#### Conclusion
+#### Conclusión
 En promedio gastan mas las personas jovenes que van a sus hogares
 
 
@@ -258,7 +294,7 @@ data_2 = df_seleccionado2[, c("Day", "C", "S", "A")]
 data_convertid2 = as.data.frame(lapply(data_2, as.factor))
 ```
 
-#### Calculo de la DAG
+#### Cálculo de la DAG
 
 ```{r}
 best_dag2 = hc(data_convertid2)
@@ -277,7 +313,7 @@ data_cc <- na.omit(data_convertid2)
 score(best_dag2, data = data_cc, type = "aic")
 ```
 
-#### Grafica de la DAG
+#### Gráfica de la DAG
 
 ```{r}
 graphviz.plot(best_dag2, shape = "ellipse")
