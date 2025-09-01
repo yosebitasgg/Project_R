@@ -28,7 +28,7 @@ diccionario = read.csv("../data/eod_2017_csv/tviaje_eod2017/diccionario_de_datos
 ```{r}
 diccionario2 = read.csv("../data/eod_2017_csv/ttransporte_eod2017/diccionario_de_datos/diccionario_datos_ttransporte.csv", stringsAsFactors = TRUE)
 ```
-Se renombraran las columnas de esta manera
+**Se renombrarán las columnas de esta manera**
 
 edad = A
 
@@ -67,7 +67,7 @@ p5_15_13 = Ts
 p5_3 = Day
 
 
-Significado de cada columna:
+**Significado de cada columna:**
 
 A = Edad
 
