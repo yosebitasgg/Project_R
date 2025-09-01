@@ -302,3 +302,43 @@ La probabilidad de que una persona viaje entre semana con un transporte privado 
 ## Querie 4: 
 ¿Los viajes en estratos bajos tienden a ser más largos en transporte público que en automóvil?
 
+```{r}
+data
+```
+
+```{r}
+col_deseadas <- c("estrato", "p5_9_1", "p5_9_2", "p5_10_1", "p5_10_2", "p5_14_01", "p5_14_02")
+df_selec <- data[, col_deseadas]
+names(df_selec) <- c("E", "I", "M", "H", "F", "Auto", "TPublico")
+```
+
+
+```{r}
+df_selec$Duracion <- (df_selec$H - df_selec$I) * 60 + (df_selec$F - df_selec$M)
+```
+
+```{r}
+estrato_bajo <- subset(df_selec, E == 1)
+```
+
+```{r}
+auto <- subset(estrato_bajo, Auto == 1)       # 
+publico <- subset(estrato_bajo, TPublico == 1) #
+```
+
+```{r}
+mean_auto <- mean(auto$Duracion, na.rm = TRUE)
+mean_publico <- mean(publico$Duracion, na.rm = TRUE)
+```
+
+```{r}
+mean_auto
+```
+
+```{r}
+mean_publico
+```
+#### Conclusion
+En promedio los viajes en transporte publico suelen ser mas largos con respecto a los viajes en auto en el estrato bajo
+
+
