@@ -303,10 +303,6 @@ La probabilidad de que una persona viaje entre semana con un transporte privado 
 ¿Los viajes en estratos bajos tienden a ser más largos en transporte público que en automóvil?
 
 ```{r}
-data
-```
-
-```{r}
 col_deseadas <- c("estrato", "p5_9_1", "p5_9_2", "p5_10_1", "p5_10_2", "p5_14_01", "p5_14_02")
 df_selec <- data[, col_deseadas]
 names(df_selec) <- c("E", "I", "M", "H", "F", "Auto", "TPublico")
@@ -315,6 +311,34 @@ names(df_selec) <- c("E", "I", "M", "H", "F", "Auto", "TPublico")
 
 ```{r}
 df_selec$Duracion <- (df_selec$H - df_selec$I) * 60 + (df_selec$F - df_selec$M)
+```
+
+```{r}
+data_4 <- df_selec[, c("Auto", "Duracion", "TPublico", "E")]
+```
+
+```{r}
+data_4 <- na.omit(data_4)
+```
+
+```{r}
+data_4$Auto <- as.factor(data_4$Auto)
+data_4$TPublico <- as.factor(data_4$TPublico)
+data_4$E <- as.factor(data_4$E)
+```
+
+
+```{r}
+set.seed(123)
+best_dag <- hc(data_4, score = "bic-cg")      # <- importante para mixtos
+bn <- bn.fit(best_dag, data = data_4)
+```
+
+```{r}
+modelstring(best_dag)
+```
+```{r}
+graphviz.plot(best_dag, shape = "ellipse")
 ```
 
 ```{r}
