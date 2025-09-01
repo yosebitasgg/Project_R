@@ -114,6 +114,7 @@ graphviz.plot(best_dag, shape = "ellipse")
 ```{r}
 bn = bn.fit(best_dag, data = data)
 ```
+
 ```{r}
 cpquery(bn, event = (T == "train" & S == "F"), evidence = (E == "uni"), n=10^6)
 ```
