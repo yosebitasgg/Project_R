@@ -1,0 +1,56 @@
+---
+title: "Situación problema: Contaminación ambiental y salud en México"
+author: "Yoseba, Pedro y Santiago"
+format:
+   html:
+     toc: true
+     html-math-method: katex
+     embed-resources: true
+     self-contained-math: true
+     df-print: kable
+editor: source
+---
+```{r}
+library(readr)
+
+```
+
+```{r}
+
+muestras <- read_csv("../data/ensanut2022_muestras.csv")
+```
+```{r}
+#| eval: false
+install.packages("readxl")
+```
+```{r}
+library(readxl)
+
+diccionario <- read_xlsx("../data/ensanut2022_muestras-diccionario.xlsx")
+diccionario
+```
+
+```{r}
+sociodemo = read.csv("../data/ensanut2022_socdem.csv")
+```
+```{r}
+diccionario2 = read_xlsx("../data/ensanut2022_socdem-diccionario.xlsx")
+diccionario2
+```
+```{r}
+aire = read.csv("../data/calidad_aire_2025.csv")
+names(aire)
+```
+**SO_2** → Dióxido de azufre
+
+**CO** → Monóxido de carbono
+
+**NOx** → Óxidos de nitrógeno
+
+**COV** → Compuestos orgánicos volátiles
+
+**PM_010** → Partículas menores a 10 micras (PM₁₀)
+
+**PM_2_5** → Partículas menores a 2.5 micras (PM₂.₅)
+
+**NH_3** → Amoniaco
