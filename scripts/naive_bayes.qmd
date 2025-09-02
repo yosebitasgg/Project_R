@@ -1,0 +1,112 @@
+---
+title: "Clasificadores de redes bayesianas"
+author: "Yoseba"
+format:
+   html:
+     toc: true
+     html-math-method: katex
+     embed-resources: true
+     self-contained-math: true
+     df-print: kable
+editor: source
+---
+```{r}
+library(tidyverse)
+```
+```{r}
+data = read_csv("../data/toy_bayes.csv")
+head(data)
+```
+
+```{r}
+data |>
+    filter(y == "Class0") |>
+    ggplot(aes(x = x1, y = after_stat(density))) +
+    geom_histogram(color = "dodgerblue", fill = "slategray1", alpha = 0.4) +
+    geom_density(fill = "dodgerblue", color = NA, lwd = 1, alpha = 0.5) +
+    labs(x = expression(x[1]), y = "Density", title = expression(x[1] ~ "|" ~ y == 0)) +
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5, face = "bold",
+                                    margin = margin(0, 0, 5, 0)),
+            axis.title.x = element_text(face = "bold"),
+            axis.title.y = element_text(face = "bold", angle = 90),
+            legend.title = element_text(hjust = 0.5, face = "bold"),
+            legend.text = element_text(hjust = 0.5),
+            strip.text = element_text(size = 14, hjust = 0.5, face = "bold",
+                                      margin = margin(2, 3, 3, 3)))
+```
+```{r}
+data |>
+    filter(y == "Class0") |>
+    group_by(x3) |>
+    summarise(n = n()) |>
+    mutate(prob = n/sum(n))
+```
+
+```{r}
+prior = data |>
+            group_by(y) |>                        ## Agrupamos por la etiqueta
+            summarise(n = n()) |>                        ## Contamos el número de observaciones de cada clase
+            mutate(prior_prob = n/sum(n))  ## Calculamos las probabilidades a priori
+
+prior
+```
+
+```{r}
+bws = data |>
+        group_by(y) |>                            ## Agrupamos por la etiqueta
+        summarise(bw1 = density(x1)$bw,  ## Extraemos los bandwidths
+                   bw2 = density(x2)$bw)
+
+bws
+```
+
+```{r}
+x_tilde = tibble(y = c("Class0", "Class1"),
+                 x1 = rep(0.4, 2), x2 = rep(1.5, 2))
+x_tilde
+```
+```{r}
+num_probs = x_tilde |>
+                left_join(bws, by = "y")
+num_probs
+```
+
+```{r}
+K = function(x){
+    return(exp(-x^2/2)/sqrt(2*pi))
+}
+```
+```{r}
+kernel = function(x, data, bw){
+    return(mean(K((x- data)/bw))/bw)
+}
+```
+```{r}
+num_probs = num_probs |>
+                group_by(y) |>                                   ## Agrupamos por la etiqueta
+                summarise(kernel1 = kernel(x1, data$x1, bw1),                ## Calculamos los kernels
+                           kernel2 = kernel(x2, data$x2, bw2)) |>
+                select(y, kernel1, kernel2)  ## Seleccionamos sólo la etiqueta y los kernels
+num_probs
+```
+```{r}
+cat_probs = data |>
+                group_by(y, x3) |>        ## Realizamos la agrupación por la etiqueta y x3
+                summarise(n = n()) |>    ## Contamos el número de observaciones
+                group_by(y) |>        ## Agrupamos por la etiqueta
+                mutate(prob = n/sum(n)) |> ## Calculamos las probabilidades
+                filter(x3 == "Level1")          ## Seleccionamos sólo el caso cuando x3 = Level1
+cat_probs
+```
+
+
+```{r}
+total = sum(prior$prior_prob * num_probs$kernel1 * num_probs$kernel2 * cat_probs$prob)
+```
+
+```{r}
+(prior$prior_prob * num_probs$kernel1 * num_probs$kernel2 * cat_probs$prob)/total
+```
+Probabilidad de Class0 = 0.05218539 
+Probabilidad de Class1 = 0.94781461

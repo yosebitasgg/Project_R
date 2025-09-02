@@ -1,0 +1,136 @@
+---
+title: "Redes multinomiales"
+author: "Yoseba"
+format:
+   html:
+     toc: true
+     html-math-method: katex
+     embed-resources: true
+     self-contained-math: true
+     df-print: kable
+editor: source
+---
+
+## Ejemplo: Transporte
+```{r}
+#| eval: false
+install.packages("bnlearn")
+```
+
+```{r}
+library(bnlearn)
+```
+
+```{r}
+data = read.csv("data/survey.csv", stringsAsFactors = TRUE)
+head(data)
+
+```
+
+```{r}
+dag = empty.graph(nodes = c("A", "S", "E", "O", "R", "T"))
+
+```
+
+```{r}
+arc_set = matrix(c("A", "E",
+                   "S", "E",
+                   "E", "O",
+                   "E", "R",
+                   "O", "T",
+                   "R", "T"), byrow = TRUE, ncol = 2,
+                 dimnames = list(NULL, c("from", "to")))
+arc_set
+```
+
+```{r}
+arcs(dag) = arc_set
+dag
+```
+
+```{r}
+bn_mle = bn.fit(dag, data = data, method = "mle")
+
+```
+
+```{r}
+bn_mle$E
+```
+```{r}
+bn_mle$O
+```
+
+```{r}
+ci.test("T", "E", c("O", "R"), test = "mi", data = data)
+
+```
+```{r}
+ci.test("T", "E", c("O", "R"), test = "x2", data = data)
+
+```
+```{r}
+ci.test("T","O","R",test="mi",data=data)
+```
+
+```{r}
+arc.strength(dag, data = data, criterion = "mi")
+
+```
+
+```{r}
+score(dag, data = data, type = "bic")
+
+```
+```{r}
+score(dag, data = data, type = "aic")
+
+```
+
+```{r}
+best_dag = hc(data)
+
+```
+
+```{r}
+modelstring(best_dag)
+
+```
+```{r}
+score(best_dag, data = data, type = "bic")
+```
+```{r}
+score(best_dag, data = data, type = "aic")
+```
+```{r}
+#| eval: false
+install.packages("BiocManager")
+BiocManager::install("Rgraphviz")
+```
+
+```{r}
+graphviz.plot(best_dag, shape = "ellipse")
+
+```
+```{r}
+bn = bn.fit(best_dag, data = data)
+```
+
+```{r}
+cpquery(bn, event = (T == "train" & S == "F"), evidence = (E == "uni"), n=10^6)
+```
+```{r}
+cpquery(bn, event = (T == "train" & S == "F"), evidence = list(E = "uni"), method = "lw")
+
+```
+```{r}
+cpquery(bn, event = (T == "train"), evidence = ((S == "M") & (((A == "young") & (E == "uni")) | (A == "adult"))), n = 10^6)
+```
+```{r}
+cpquery(bn, event = (T == "train"), evidence = ((S == "F") & (((A == "young") & (E == "uni")) | (A == "adult"))), n = 10^6)
+```
+
+
+
+
+
+

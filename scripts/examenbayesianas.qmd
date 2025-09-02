@@ -1,0 +1,186 @@
+---
+title: "Examen 1: Redes bayesianas multinomiales"
+author: "A01612830 Yoseba Michel Mireles Ahumada"
+format:
+   html:
+     toc: true
+     html-math-method: katex
+     embed-resources: true
+     self-contained-math: true
+     df-print: kable
+editor: source
+---
+### 1. Red bayesiana
+Ajusta una red bayesiana a estos datos usando la DAG que bosquejaste previamente. (5 puntos)
+```{r}
+#| eval: false
+install.packages("bnlearn")
+```
+
+```{r}
+library(bnlearn)
+```
+
+```{r}
+data = read.csv("../data/cybersecurity.csv", stringsAsFactors = TRUE)
+head(data)
+
+```
+```{r}
+set.seed(1234)
+```
+
+#### Creación de la DAG
+```{r}
+dag = empty.graph(nodes = c("R", "S", "A", "N", "M", "T", "V"))
+```
+
+
+```{r}
+arc_set = matrix(c("R", "A",
+                   "S", "A",
+                   "N", "M",
+                   "A", "M",
+                   "N", "T",
+                   "M", "V",
+                   "T", "V"), byrow = TRUE, ncol = 2,
+                 dimnames = list(NULL, c("from", "to")))
+arc_set
+```
+```{r}
+arcs(dag) = arc_set
+dag
+```
+
+```{r}
+#| eval: false
+install.packages("BiocManager")
+BiocManager::install("Rgraphviz")
+```
+
+#### Visualización de la DAG
+```{r}
+graphviz.plot(dag, shape = "ellipse")
+
+```
+
+### 2. Probabilidad exacta 
+Calcula la probabilidad exacta de que el vector de un ataque sea phishing cuando el motivo es realizar un espionaje por la noche. ¿Este ataque es más probable si se realiza por la mañana? (10 puntos)
+
+```{r}
+bn_mle = bn.fit(dag, data = data, method = "mle")
+
+```
+
+```{r}
+bn_mle$V
+```
+La probabilidad exacta de que el vector de un ataque sea pishing en la nochees de **0.49823820**
+
+La probabilidad de que sea realizado en la mañana es de **0.90100671**
+
+Por lo que podemos concluir que es más probable que el vector de un ataque sea fishing sea en la **mañana**
+
+### 3. Prueba de la hipotesis
+
+Prueba la hipótesis que formulaste en el ejercicio 4 de la parte previa. Explica claramente el resultado de esta prueba en el contexto de los datos. (5 puntos)
+
+```{r}
+ci.test("V", "T", test = "mi", data = data)
+
+```
+Con estos resultados **no rechazamos H0**: El vector de un ataque es condicionalmente independiente de la hora en que se ocurrió el incidente.
+
+La relación de dependencia de T -> V **no es significativa**.
+
+**No deberia de haber arco** de T a V.
+
+### 4. Consultoría
+Una consultoría externa en ciberseguridad sugiere que el segmento de red donde ocurre el incidente no influye en el motivo del ataque. ¿Cuál de las dos redes presenta un mejor ajuste? (10 puntos)
+
+#### Evaluación de la primera DAG
+
+```{r}
+scorebic1 = score(dag, data = data, type = "bic")
+scorebic1
+```
+```{r}
+scoreaic1 = score(dag, data = data, type = "aic")
+scoreaic1 
+```
+
+#### Creación de la segunda DAG
+```{r}
+dag2 = empty.graph(nodes = c("R", "S", "A", "N", "M", "T", "V"))
+```
+
+```{r}
+arc_set2 = matrix(c("R", "A",
+                   "S", "A",
+                   "A", "M",
+                   "N", "T",
+                   "M", "V",
+                   "T", "V"), byrow = TRUE, ncol = 2,
+                 dimnames = list(NULL, c("from", "to")))
+arc_set2
+```
+```{r}
+arcs(dag2) = arc_set2
+dag2
+```
+
+#### Visualización de la segunda DAG
+```{r}
+graphviz.plot(dag2, shape = "ellipse")
+```
+#### Evaluación de la segunda DAG
+
+```{r}
+scorebic2 = score(dag2, data = data, type = "bic")
+scorebic2
+```
+
+```{r}
+scoreaic2 = score(dag2, data = data, type = "aic")
+scoreaic2
+```
+#### Comparación de resultados
+```{r}
+print("Resultados de la primera DAG")
+scorebic1
+scoreaic1
+print("Resultados de la segunda DAG")
+scorebic2
+scoreaic2
+```
+La estrucutra de la primera DAG resulta más conveniente al tener valores más grandes.
+
+### 5. Usando la mejor DAG del ejercicio anterior, contesta lo siguiente.
+
+¿Cuál es la probabilidad de que el motivo de un ataque sea financiero y sea realizado mediante malware si fuera realizado en la noche por un actor externo y en una red remota? (10 puntos)
+
+```{r}
+bn = bn.fit(dag, data = data)
+```
+```{r}
+cpquery(bn, event = (M == "financial" & V == "malware"), evidence = (T == "night" & A == "external" & N == "remote"), n=10^6)
+```
+La probabilidad de que un ataque sea financiero y sea realizado mediante malware, realizado en la noche por un actor externo y en una red remota es de **0.1442211**.
+
+
+Calcula la probabilidad de que se realice un ataque de phishing en cualquier segmento de red dado que el motivo es financiero o de espionaje y la persona usuaria es junior. 
+
+```{r}
+cpquery(bn, event = (V == "phishing"), evidence = ((M == "financial") | (M == "espionage")) & (S == "junior"), n = 10^6)
+```
+Calcula la misma probabilidad si la persona usuaria es mid y cuando es senior. 
+
+```{r}
+cpquery(bn, event = (V == "phishing"), evidence = ((M == "financial") | (M == "espionage")) & (S == "mid"), n = 10^6)
+```
+```{r}
+cpquery(bn, event = (V == "phishing"), evidence = ((M == "financial") | (M == "espionage")) & (S == "senior"), n = 10^6)
+```
+#### ¿Cuál de estas tres probabilidades es mayor y qué significa en el contexto del problema? 
+
+La persona usuaria con mayor probabilidad es cuando es **"junior"**, esto traducido en contexto del problema quiere decir que las personas junior son más vulnerables a sufrir de un ataque de fishing con motivo financiero o de espionaje. Esto podría ser debido a su falta de experiencia o "inmadurez".
