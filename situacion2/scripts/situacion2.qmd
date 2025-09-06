@@ -16,7 +16,6 @@ library(readr)
 ```
 
 ```{r}
-
 muestras <- read_csv("../data/ensanut2022_muestras.csv")
 ```
 ```{r}
@@ -54,3 +53,7 @@ names(aire)
 **PM_2_5** → Partículas menores a 2.5 micras (PM₂.₅)
 
 **NH_3** → Amoniaco
+
+
+
+
