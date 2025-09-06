@@ -10,70 +10,37 @@ format:
      df-print: kable
 editor: source
 ---
-
-```{r}
-install.packages("readxl")
-install.packages("dplyr")
-```
-
 ```{r}
 library(readr)
-
 ```
 
-```{r}
 
+# Extracción de los datos
+
+## Archivos:
+Encuesta Nacional de Salud y Nutrición
+
+
+### Muestras de sangre:
+
+ensanut2022_muestras.csv
+
+```{r}
 muestras <- read_csv("../data/ensanut2022_muestras.csv")
-```
-```{r}
-#| eval: false
-install.packages("readxl")
+head(muestras)
 ```
 
-```{r}
-sociodemo = read.csv("../data/ensanut2022_socdem.csv")
-```
-```{r}
-aire = read.csv("../data/calidad_aire_2025.csv")
-names(aire)
-```
 
-**SO_2** → Dióxido de azufre
-
-**CO** → Monóxido de carbono
-
-**NOx** → Óxidos de nitrógeno
-
-**COV** → Compuestos orgánicos volátiles
-
-**PM_010** → Partículas menores a 10 micras (PM₁₀)
-
-**PM_2_5** → Partículas menores a 2.5 micras (PM₂.₅)
-
-**NH_3** → Amoniaco
+ensanut2022_muestras-diccionario.xlsx
 
 
+### Información socio-demográfica:
 
-```{r}
-library(readxl)
-library(dplyr)
+ensanut2022_socdem.csv
 
-# Ruta al archivo (ajusta si estás en otro directorio)
-ruta_archivo <- "../data/ensanut2022_muestras-diccionario.xlsx"
+ensanut2022_socdem-diccionario.xlsx
 
-# Leer la hoja "Variables" desde la fila 17 (skip = 16) con nombres definidos
-variables <- read_excel(
-  ruta_archivo,
-  sheet = "Variables",
-  skip = 16,
-  col_names = c("Variable", "Posicion", "Etiqueta", "Nivel_de_medicion", "Ancho")
-)
-# Limpiar: quitar filas vacías y seleccionar columnas deseadas
-variables_limpio <- variables %>%
-  filter(!is.na(Variable)) %>%
-  select(Variable, Etiqueta, Nivel_de_medicion)
 
-# Mostrar el dataframe limpio
-View(variables_limpio)
-```
+### Información de contaminantes del aire:
 
+calidad_aire_2025.csv
