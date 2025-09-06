@@ -1,0 +1,110 @@
+---
+title: "Diabetes"
+author: "Yoseba"
+format:
+   html:
+     toc: true
+     html-math-method: katex
+     embed-resources: true
+     self-contained-math: true
+     df-print: kable
+editor: source
+---
+```{r}
+library(tidyverse)
+```
+```{r}
+diabetes = read_delim("../data/ensanut2020_diabetes.csv", delim = ";")
+head(diabetes)
+```
+```{r}
+install.packages("janitor")
+
+```
+```{r}
+library(janitor)
+```
+
+Glimpse es como un .info 
+Clean_names, limpia los nombres de las columnas, pone todo en minusculas y elimina espacios
+
+```{r}
+diabetes = diabetes |>
+            clean_names()
+glimpse(diabetes)
+```
+La variable h0902a es la que nos da información sobre el estatus de la persona.
+
+Valores iguales a 1 identifican personas con diabetes, mientras que valores iguales a 9 a personas sanas.
+Case_when es como un if.
+
+```{r}
+data = diabetes |>
+        mutate(dx = case_when(h0902a == 1 ~ "diabetes",
+                              h0902a == 9 ~ "no_diabetes"))
+```
+contains va a seleccionar que al menos contenga la palabra valor
+```{r}
+data = data |>
+        select(sexo, edad, dx, contains("valor"))
+head(data)
+```
+!is.na va a eliminar los nulos de la columna dx
+```{r}
+data = data |>
+        filter(!is.na(dx))
+```
+```{r}
+glimpse(data)
+```
+mutate sirve para modificar/crear cosas
+across aplica lo que esta del lado derecho de la formula a todo lo del lado izquierdo
+. significa que es todo lo del input, todo lo que esta dando
+"\\." representa el punto 
+y  convierte a numeros numericos
+
+```{r}
+data = data |>
+        mutate(across(contains("valor"), ~ as.numeric(str_replace(., ",", "\\."))))
+glimpse(data)
+```
+```{r}
+install.packages("tidymodels")
+```
+
+```{r}
+library(tidymodels)
+```
+
+```{r}
+set.seed(1234)
+diabetes_split = initial_split(data, prop = 0.7)
+```
+
+```{r}
+diabetes_train = training(diabetes_split)
+diabetes_test = testing(diabetes_split)
+```
+```{r}
+install.packages("e1071")
+```
+```{r}
+library(e1071)
+```
+```{r}
+NB_cl = naiveBayes(dx ~ ., data = diabetes_train)
+```
+```{r}
+y_pred = predict(NB_cl, newdata = diabetes_test)
+```
+
+```{r}
+cm = table(diabetes_test$dx, y_pred)
+
+```
+```{r}
+sum(diag(cm))/sum(cm)
+```
+
+
+

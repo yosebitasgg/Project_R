@@ -14,6 +14,7 @@ editor: source
 library(readr)
 ```
 
+<<<<<<< HEAD
 
 # Extracción de los datos
 
@@ -25,6 +26,8 @@ Encuesta Nacional de Salud y Nutrición
 
 ensanut2022_muestras.csv
 
+=======
+>>>>>>> 54747a84fd159545d3ec602567d5388817f8d2a2
 ```{r}
 muestras <- read_csv("../data/ensanut2022_muestras.csv")
 head(muestras)
@@ -36,11 +39,26 @@ ensanut2022_muestras-diccionario.xlsx
 
 ### Información socio-demográfica:
 
+<<<<<<< HEAD
 ensanut2022_socdem.csv
+=======
+<<<<<<< HEAD
+=======
+```{r}
+library(readxl)
+library(dplyr)
+>>>>>>> 54747a84fd159545d3ec602567d5388817f8d2a2
 
 ensanut2022_socdem-diccionario.xlsx
 
 
+<<<<<<< HEAD
 ### Información de contaminantes del aire:
+=======
+# Mostrar el dataframe limpio
+View(variables_limpio)
+```
+>>>>>>> fe337186ff7d2dde6dcbffb34035d155f5ea1b42
+>>>>>>> 54747a84fd159545d3ec602567d5388817f8d2a2
 
 calidad_aire_2025.csv
