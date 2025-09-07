@@ -12,15 +12,6 @@ editor: source
 ---
 
 # Extracción de los datos
-```{r}
-install.packages("bnlearn")
-```
-```{r}
-install.packages("gratia")
-```
-```{r}
-install.packages("Rgraphviz")
-```
 
 ```{r}
 library(mgcv)
@@ -37,8 +28,8 @@ library(Rgraphviz)
 ```
 
 ## Archivos:
-Encuesta Nacional de Salud y Nutrición
 
+Encuesta Nacional de Salud y Nutrición
 
 ### Muestras de sangre:
 
@@ -48,7 +39,6 @@ ensanut2022_muestras.csv
 muestras = read_delim("../data/ensanut2022_muestras.csv", delim = ";")
 View(muestras)
 ```
-
 
 ensanut2022_muestras-diccionario.xlsx
 
@@ -65,8 +55,6 @@ dicc1 <- dicc1[-1, ]
 
 View(dicc1)
 ```
-
-
 
 ### Información socio-demográfica:
 
@@ -91,8 +79,6 @@ dicc2 <- dicc2[-1, ]
 View(dicc2)
 ```
 
-
-
 ### Información de contaminantes del aire:
 
 calidad_aire_2025.csv
@@ -102,209 +88,232 @@ contaminantes = read_delim("../data/calidad_aire_2025.csv")
 View(contaminantes)
 ```
 
-
 ## Análisis inicial / Investigación previa
 
 ### Biomarcadores
+
 En "ensanut2022_muestras.csv" se encontraron los siguientes **biomarcadores sanguíneos y séricos** :
 
 #### Hemoglobina y derivados
-- `valor_HB1AC`: Hemoglobina glucosilada (%)  
-- `valor_EAG`: Glucosa promedio estimada  
-- `valor_HEMOGLOBINA (hb02)`: Hemoglobina medida en sangre capilar/venosa  
-**Relevancia:** eje cardiometabólico (diabetes/hipoxia); se modelan vs. PM₂.₅/NOx.
 
----
+-   `valor_HB1AC`: Hemoglobina glucosilada (%)\
+-   `valor_EAG`: Glucosa promedio estimada\
+-   `valor_HEMOGLOBINA (hb02)`: Hemoglobina medida en sangre capilar/venosa\
+    **Relevancia:** eje cardiometabólico (diabetes/hipoxia); se modelan vs. PM₂.₅/NOx.
+
+------------------------------------------------------------------------
 
 #### Glucosa e insulina
-- `valor_GLU_SUERO`: Glucosa sérica (mg/dL)  
-- `valor_INSULINA`: Insulina (µUI/mL)  
-**Relevancia:** dismetabolismo asociado a exposición; outcomes primarios.
 
----
+-   `valor_GLU_SUERO`: Glucosa sérica (mg/dL)\
+-   `valor_INSULINA`: Insulina (µUI/mL)\
+    **Relevancia:** dismetabolismo asociado a exposición; outcomes primarios.
+
+------------------------------------------------------------------------
 
 #### Lípidos
-- `valor_COL_HDL`: Colesterol HDL  
-- `valor_COL_LDL`: Colesterol LDL  
-- `valor_COLEST`: Colesterol total  
-- `valor_TRIG`: Triglicéridos  
-**Relevancia:** perfil lipídico sensible a contaminación; HDL (↓) y TG/LDL (↑) como señales.
 
----
+-   `valor_COL_HDL`: Colesterol HDL\
+-   `valor_COL_LDL`: Colesterol LDL\
+-   `valor_COLEST`: Colesterol total\
+-   `valor_TRIG`: Triglicéridos\
+    **Relevancia:** perfil lipídico sensible a contaminación; HDL (↓) y TG/LDL (↑) como señales.
+
+------------------------------------------------------------------------
 
 #### Marcadores inflamatorios
-- `valor_PCR`: Proteína C Reactiva (mg/dL)  
-- `valor_PROTCREAC`: Proteína C Reactiva ultrasensible (mg/L)  
-**Relevancia:** inflamación sistémica; indicador principal de respuesta a mezcla.
 
----
+-   `valor_PCR`: Proteína C Reactiva (mg/dL)\
+-   `valor_PROTCREAC`: Proteína C Reactiva ultrasensible (mg/L)\
+    **Relevancia:** inflamación sistémica; indicador principal de respuesta a mezcla.
+
+------------------------------------------------------------------------
 
 #### Marcadores de función renal y ácido-base
-- `valor_CREAT`: Creatinina (mg/dL)  
-- `valor_AC_URICO`: Ácido úrico (mg/dL)  
-**Relevancia:** función renal y estrés oxidante; análisis secundario.
 
----
+-   `valor_CREAT`: Creatinina (mg/dL)\
+-   `valor_AC_URICO`: Ácido úrico (mg/dL)\
+    **Relevancia:** función renal y estrés oxidante; análisis secundario.
+
+------------------------------------------------------------------------
 
 #### Micronutrientes y vitaminas
-- `valor_FERRITINA`: Ferritina (hierro)  
-- `valor_FOL`: Folato  
-- `valor_HCST`: Homocisteína  
-- `valor_VIT_B12`: Vitamina B12  
-- `valor_VIT_D`: Vitamina D  
-**Relevancia:** soporte a mecanismos (oxidativo/endotelial); descriptivo/ajuste.
 
----
+-   `valor_FERRITINA`: Ferritina (hierro)\
+-   `valor_FOL`: Folato\
+-   `valor_HCST`: Homocisteína\
+-   `valor_VIT_B12`: Vitamina B12\
+-   `valor_VIT_D`: Vitamina D\
+    **Relevancia:** soporte a mecanismos (oxidativo/endotelial); descriptivo/ajuste.
+
+------------------------------------------------------------------------
 
 #### Marcadores hematológicos
-- `valor_STFR_FEB23`: Receptor soluble de transferrina (hierro y anemia)  
-**Relevancia:** contexto de estado férrico; análisis descriptivo.
 
----
+-   `valor_STFR_FEB23`: Receptor soluble de transferrina (hierro y anemia)\
+    **Relevancia:** contexto de estado férrico; análisis descriptivo.
+
+------------------------------------------------------------------------
 
 ### Covariables
+
 En "ensanut2022_socdem.csv" se encontraron las siguientes covariables:
 
 #### Demográficas básicas
-- `h0302` — **Sexo** (M/F).  
-- `h0303`, `h0304a`/`h0304m`/`h0304d`, `meses` — **Edad**.  
-- `h0320`/`h0320q` — **Conyugal/pareja**.  
-- `h0305`/`h0305_es` — **Parentesco con jefatura**.  
-**Uso:** ajuste por factores demográficos clave.
 
----
+-   `h0302` — **Sexo** (M/F).\
+-   `h0303`, `h0304a`/`h0304m`/`h0304d`, `meses` — **Edad**.\
+-   `h0320`/`h0320q` — **Conyugal/pareja**.\
+-   `h0305`/`h0305_es` — **Parentesco con jefatura**.\
+    **Uso:** ajuste por factores demográficos clave.
+
+------------------------------------------------------------------------
 
 #### Lengua y etnicidad cultural (contexto sociocultural)
-- `h0311` — **Habla lengua indígena**.  
-- `h0312` — **Habla español**.  
-**Uso:** determinantes sociales (proxy).
 
----
+-   `h0311` — **Habla lengua indígena**.\
+-   `h0312` — **Habla español**.\
+    **Uso:** determinantes sociales (proxy).
+
+------------------------------------------------------------------------
 
 #### Escolaridad y estatus educativo
-- `h0313` — **Asistencia escolar**.  
-- `h0314` — **Tipo de escuela**.  
-- `h0317a`/`h0317g` — **Último nivel/grado**.  
-- `h0318` — **Sabe leer/escribir**.  
-**Uso:** **SES/educación** como confusor.
 
----
+-   `h0313` — **Asistencia escolar**.\
+-   `h0314` — **Tipo de escuela**.\
+-   `h0317a`/`h0317g` — **Último nivel/grado**.\
+-   `h0318` — **Sabe leer/escribir**.\
+    **Uso:** **SES/educación** como confusor.
+
+------------------------------------------------------------------------
 
 #### Ocupación y actividad económica
-- `h0319` — **Situación actual**.  
-- `h0321`–`h0324`/`h0324esp` — **Trabajo/categoría**.  
-**Uso:** exposición diferencial por ocupación.
 
----
+-   `h0319` — **Situación actual**.\
+-   `h0321`–`h0324`/`h0324esp` — **Trabajo/categoría**.\
+    **Uso:** exposición diferencial por ocupación.
+
+------------------------------------------------------------------------
 
 #### Acceso y uso de servicios de salud
-- `h0309`, `h0309e` — **Sitio de atención**.  
-- `H0310A`–`H0310C`, `h0310e` — **Derechohabiencia**.  
-- `h0401`–`h0409`, `H0405A`–`C`, `H0407A`–`C` — **Uso/barreras**.  
-**Uso:** patrón de atención (confusor).
 
----
+-   `h0309`, `h0309e` — **Sitio de atención**.\
+-   `H0310A`–`H0310C`, `h0310e` — **Derechohabiencia**.\
+-   `h0401`–`h0409`, `H0405A`–`C`, `H0407A`–`C` — **Uso/barreras**.\
+    **Uso:** patrón de atención (confusor).
+
+------------------------------------------------------------------------
 
 #### Programas sociales (proxy de nivel socioeconómico)
-- `h0601a`–`h0601n`, `h0603a`–`h0603n` — **Apoyos**.  
-- `h0604ba`/`h0604bb` — **INSABI**.  
-**Uso:** **SES** y protección social.
 
----
+-   `h0601a`–`h0601n`, `h0603a`–`h0603n` — **Apoyos**.\
+-   `h0604ba`/`h0604bb` — **INSABI**.\
+    **Uso:** **SES** y protección social.
+
+------------------------------------------------------------------------
 
 #### COVID-19 (historia y vacunación)
-- `h1205`, `h1207a`, `h1207b` — **Diagnóstico**.  
-- `H1213A`–`T`, `h1213e`, `h1215`, `h1216` — **Secuelas/síntomas**.  
-- `h1602`, `h16041d/m/a`–`h16044d/m/a`, `h16051`–`h16054` — **Vacunación**.  
-**Uso:** control por inflamación reciente.
 
----
+-   `h1205`, `h1207a`, `h1207b` — **Diagnóstico**.\
+-   `H1213A`–`T`, `h1213e`, `h1215`, `h1216` — **Secuelas/síntomas**.\
+-   `h1602`, `h16041d/m/a`–`h16044d/m/a`, `h16051`–`h16054` — **Vacunación**.\
+    **Uso:** control por inflamación reciente.
+
+------------------------------------------------------------------------
 
 #### Geografía y urbanidad (exposición contextual)
-- `entidad1`/`desc_ent1`, `municipio1`/`desc_mun1` — **Localización**.  
-- `region` — **Región**.  
-- `estrato` — **Urbano–rural**.  
-**Uso:** llaves territoriales y gradiente urbano–rural.
 
----
+-   `entidad1`/`desc_ent1`, `municipio1`/`desc_mun1` — **Localización**.\
+-   `region` — **Región**.\
+-   `estrato` — **Urbano–rural**.\
+    **Uso:** llaves territoriales y gradiente urbano–rural.
+
+------------------------------------------------------------------------
 
 #### Diseño muestral (¡no son confusores, pero son obligatorios en el análisis!)
-- `ponde_f` — **Ponderador**.  
-- `est_sel` — **Estrato**.  
-- `upm` — **Conglomerado/UPM**.  
-**Uso:** especificar en `survey/srvyr` para inferencia válida.
 
----
+-   `ponde_f` — **Ponderador**.\
+-   `est_sel` — **Estrato**.\
+-   `upm` — **Conglomerado/UPM**.\
+    **Uso:** especificar en `survey/srvyr` para inferencia válida.
+
+------------------------------------------------------------------------
 
 ### Contaminantes
-- `SO_2` — Dióxido de azufre (SO₂)  
-  **Relevancia:** combustión industrial/energética.
-- `CO` — Monóxido de carbono  
-  **Relevancia:** marcador de mezcla vehicular.
-- `NOx` — Óxidos de nitrógeno  
-  **Relevancia:** tráfico; precursor de nitratos.
-- `COV` — Compuestos orgánicos volátiles  
-  **Relevancia:** precursores de ozono/mezcla; algunos tóxicos.
-- `PM_010` — Partículas PM₁₀  
-  **Relevancia:** morbilidad respiratoria/cardiovascular.
-- `PM_2_5` — Partículas PM₂.₅  
-  **Relevancia:** eje principal cardiometabólico/inflamatorio.
-- `NH_3` — Amoniaco  
-  **Relevancia:** *(sin interpretación directa en este análisis; se mantiene listado)*.
+
+-   `SO_2` — Dióxido de azufre (SO₂)\
+    **Relevancia:** combustión industrial/energética.
+-   `CO` — Monóxido de carbono\
+    **Relevancia:** marcador de mezcla vehicular.
+-   `NOx` — Óxidos de nitrógeno\
+    **Relevancia:** tráfico; precursor de nitratos.
+-   `COV` — Compuestos orgánicos volátiles\
+    **Relevancia:** precursores de ozono/mezcla; algunos tóxicos.
+-   `PM_010` — Partículas PM₁₀\
+    **Relevancia:** morbilidad respiratoria/cardiovascular.
+-   `PM_2_5` — Partículas PM₂.₅\
+    **Relevancia:** eje principal cardiometabólico/inflamatorio.
+-   `NH_3` — Amoniaco\
+    **Relevancia:** *(sin interpretación directa en este análisis; se mantiene listado)*.
 
 > **Nota de datos:** en `Fuentes naturales` algunos contaminantes pueden aparecer `NA`.
 
----
+------------------------------------------------------------------------
 
 #### Variables de localización
-- `Entidad_federativa` — Nombre oficial de la entidad.  
-- `Municipio` — Nombre oficial del municipio.  
-- `Entidad` — Duplicado/normalizado de la entidad.  
-**Uso:** llaves para *join* con ENSANUT (Entidad/Municipio).
 
----
+-   `Entidad_federativa` — Nombre oficial de la entidad.\
+-   `Municipio` — Nombre oficial del municipio.\
+-   `Entidad` — Duplicado/normalizado de la entidad.\
+    **Uso:** llaves para *join* con ENSANUT (Entidad/Municipio).
+
+------------------------------------------------------------------------
 
 #### Clasificación de fuentes
-- `Tipo_de_Fuente` — Categoría de emisión:
-  - **Fuentes fijas** (industria/energía)  
-  - **Fuentes de área** (residencial/comercial/difusas)  
-  - **Fuentes móviles carreteros**  
-  - **Fuentes móviles que no circulan por carretera**  
-  - **Fuentes naturales**  
-**Uso:** permite análisis por origen de emisiones y sensibilidad por fuente.
 
+-   `Tipo_de_Fuente` — Categoría de emisión:
+    -   **Fuentes fijas** (industria/energía)\
+    -   **Fuentes de área** (residencial/comercial/difusas)\
+    -   **Fuentes móviles carreteros**\
+    -   **Fuentes móviles que no circulan por carretera**\
+    -   **Fuentes naturales**\
+        **Uso:** permite análisis por origen de emisiones y sensibilidad por fuente.
 
----
-
+------------------------------------------------------------------------
 
 # Selección de variables clave (DAG)
 
 ## DAG 1 – Contaminación ↔ Metabolismo (diabetes)
 
 ### Nodos padre (exposición ambiental)
-- `PM_2_5`: partículas finas que entran en pulmón y sangre.  
-- `NOx`: gases del tráfico que afectan metabolismo y respiración.  
+
+-   `PM_2_5`: partículas finas que entran en pulmón y sangre.\
+-   `NOx`: gases del tráfico que afectan metabolismo y respiración.
 
 ### Nodos de ajuste (covariables, padres de los biomarcadores)
-- `h0303` — Edad: riesgo de diabetes aumenta con la edad.  
-- `h0302` — Sexo: diferencias biológicas en metabolismo.  
-- `h0317a/g` — Escolaridad: nivel educativo como proxy socioeconómico.  
-- `region`, `estrato` — Localización urbano-rural que determina exposición ambiental.  
+
+-   `h0303` — Edad: riesgo de diabetes aumenta con la edad.\
+-   `h0302` — Sexo: diferencias biológicas en metabolismo.\
+-   `h0317a/g` — Escolaridad: nivel educativo como proxy socioeconómico.\
+-   `region`, `estrato` — Localización urbano-rural que determina exposición ambiental.
 
 ### Nodos hijos (outcomes/biomarcadores)
-- `valor_HB1AC`: glucosa acumulada en sangre (3 meses).  
-- `valor_GLU_SUERO`: nivel actual de glucosa en suero.  
-- `valor_INSULINA`: hormona que regula el azúcar en sangre.  
+
+-   `valor_HB1AC`: glucosa acumulada en sangre (3 meses).\
+-   `valor_GLU_SUERO`: nivel actual de glucosa en suero.\
+-   `valor_INSULINA`: hormona que regula el azúcar en sangre.
 
 ### Estructura conceptual
-- `PM_2_5` → {`HB1AC`, `GLU_SUERO`, `INSULINA`}  
-- `NOx` → {`HB1AC`, `GLU_SUERO`, `INSULINA`}  
-- `Edad`, `Sexo`, `Escolaridad`, `Región/Estrato` → {`HB1AC`, `GLU_SUERO`, `INSULINA`}  
 
+-   `PM_2_5` → {`HB1AC`, `GLU_SUERO`, `INSULINA`}\
+-   `NOx` → {`HB1AC`, `GLU_SUERO`, `INSULINA`}\
+-   `Edad`, `Sexo`, `Escolaridad`, `Región/Estrato` → {`HB1AC`, `GLU_SUERO`, `INSULINA`}
 
 
 # Tratamiento de los datos y tablas
+
 ## Limpieza de tablas
+
 Seleccionamos unicamente las columnas requeridas para el analisis
 
 ```{r}
@@ -322,14 +331,17 @@ catalogo_entidades <- tibble::tibble(
   )
 )
 ```
+
 Hacemos un promedio de las variables deseadas de contaminantes
+
 ```{r}
 data1 <- contaminantes |>
-  select(Entidad, Tipo_de_Fuente, PM_2_5, NOx) |>
+  select(Entidad, Tipo_de_Fuente, PM_2_5, NOx, CO) |>
   filter(Tipo_de_Fuente == "Fuentes fijas") |>
   group_by(Entidad) |>
   summarise(PM_2_5 = mean(PM_2_5, na.rm = TRUE),
             NOx    = mean(NOx,    na.rm = TRUE),
+            CO    = mean(CO,    na.rm = TRUE),
             .groups = "drop")
 
 data1 <- data1 |>
@@ -338,9 +350,10 @@ data1 <- data1 |>
 
 head(data1)
 ```
+
 ```{r}
 data2 <- muestras |>
-  select(FOLIO_I, h0303, h0302, valor_HB1AC, valor_GLU_SUERO, valor_INSULINA)
+  select(FOLIO_I, h0303, h0302, valor_HB1AC, valor_GLU_SUERO, valor_INSULINA, valor_CREAT, valor_PCR)
 
 head(data2)
 ```
@@ -352,9 +365,8 @@ data3 <- info |>
 head(data3)
 ```
 
-
-
 ## Unión de tablas
+
 ```{r}
 data2 <- data2 |> dplyr::distinct(FOLIO_I, .keep_all = TRUE)
 data3 <- data3 |> dplyr::distinct(FOLIO_I, .keep_all = TRUE)
@@ -369,7 +381,7 @@ View(data_ensanut)
 
 ```{r}
 aire_ent <- data1 |>
-  transmute(codigo, PM_2_5, NOx) 
+  transmute(codigo, PM_2_5, NOx, CO) 
 
 data_final <- data_ensanut |>
   left_join(aire_ent, by = c("entidad" = "codigo"))
@@ -377,17 +389,17 @@ data_final <- data_ensanut |>
 View(data_final)
 ```
 
-
 # DAG 1
+
 ```{r}
 colnames(data_final)
 ```
+
 ```{r}
 data_dag1 = data_final |>
         select(NOx, PM_2_5, valor_GLU_SUERO, valor_HB1AC, valor_INSULINA)
 view(data_dag1)
 ```
-
 
 ```{r}
 colnames(data_dag1) = c("N","P", "Ga","Gc", "I")
@@ -436,9 +448,6 @@ ggplot(data_dag1, aes(x = N, y = Gc)) +
         axis.title.y = element_text(face = "bold", angle = 90))
 ```
 
-```{r}
-install.packages("gratia")
-```
 
 ```{r}
 library(mgcv)
@@ -478,154 +487,101 @@ cat("Filas completas:", nrow(data_cc), "\n")
 # Puntuar con BIC gaussiano
 score(dag1, data = data_cc, type = "bic-g")
 ```
+#DAG 3
 
-# DAG 2
 ```{r}
-data1 <- contaminantes |>
-  select(Entidad, PM_2_5, NOx) |>
-  group_by(Entidad) |>
-  summarise(PM_2_5 = mean(PM_2_5, na.rm = TRUE),
-            NOx    = mean(NOx,    na.rm = TRUE),
-            .groups = "drop")
-
-data1 <- data1 |>
-  inner_join(catalogo_entidades, by = "Entidad") |>
-  arrange(codigo)
-
-head(data1)
+colnames(data_final)
 ```
 
 ```{r}
-data2 <- muestras |>
-  select(FOLIO_I, h0303, h0302, valor_HB1AC, valor_GLU_SUERO, valor_INSULINA, valor_PROTCREAC,valor_PCR)
-
-head(data2)
+data_dag3 = data_final |>
+        select(NOx, PM_2_5, CO, valor_PCR, valor_CREAT, valor_INSULINA)
+view(data_dag3)
 ```
 
 ```{r}
-data3 <- info |>
-  select(FOLIO_I, h0317a, h0317g, entidad = entidad1, region, estrato)
-
-head(data3)
-```
-
-
-
-## Unión de tablas
-```{r}
-data2 <- data2 |> dplyr::distinct(FOLIO_I, .keep_all = TRUE)
-data3 <- data3 |> dplyr::distinct(FOLIO_I, .keep_all = TRUE)
-```
-
-```{r}
-data_ensanut <- data2 |>
-  inner_join(data3, by = "FOLIO_I")
-```
-
-```{r}
-aire_ent <- data1 |>
-  transmute(codigo, PM_2_5, NOx) 
-
-data_final <- data_ensanut |>
-  left_join(aire_ent, by = c("entidad" = "codigo"))
-
-View(data_final)
-```
-
-```{r}
-data2 <- data_final |> 
-  mutate(across(contains("valor"), ~ as.numeric(gsub(",", ".", .))))
-```
-
-
-```{r}
-data_dag_inf <- data2 |> 
-  select(NOx, PM_2_5, valor_PROTCREAC,valor_PCR,valor_HB1AC,valor_INSULINA,valor_GLU_SUERO) |> drop_na()
-```
-
-
-```{r}
-colnames(data_dag_inf) = c("N","P", "Gc","CRP", "Hb", "I","Ga")
-view(data_dag_inf)
+colnames(data_dag3) = c("N","P","C","PC","Cr", "I")
+view(data_dag3)
 
 ```
 
 ```{r}
-library(bnlearn)
-
-dag2 = model2network("[N][P][Gc|P:N][I|P:N][Ga|P:N][Hb|I:Ga:P:N][CRP|Gc:P:N]")
-
-
+dag3 = model2network("[P][N][C][PC|P:N:C][Cr|P:N:C][I|P:N:C]")
 ```
 
 ```{r}
-graphviz.plot(dag2, shape = "ellipse")
+graphviz.plot(dag3, shape = "ellipse")
 ```
 
 ```{r}
-str(data_dag_inf)
+str(data_dag3)
 ```
 
 ```{r}
-data_dag_inf <- data_dag_inf |>
+data_dag3 <- data_dag3 |>
   mutate(across(where(is.character), ~ as.numeric(gsub(",", ".", .))))
 ```
 
 ```{r}
-crop_fit = bn.fit(dag2, data = data_dag_inf)
+crop_fit = bn.fit(dag3, data = data_dag3)
 ```
 
+```{r}
+crop_fit
+```
 
 ```{r}
-mod_lm = lm(N~P, data = data_dag_inf)
+mod_lm = lm(I~P + N + C, data = data_dag3)
 coef(mod_lm)
 ```
 
 ```{r}
-ggplot(data_dag_inf, aes(x = N, y = Gc)) +
+ggplot(data_dag3, aes(x = N, y = PC)) +
   geom_point(color = "steelblue", alpha = 0.3) +
-  geom_smooth(method = "lm", se = FALSE, size = 1.2, color = "dodgerblue") +
-  labs(x = "NOx (N)", y = "Glucosa acumulada (Gc)", title = "Relación NOx y Glucosa Acumulada") +
+  geom_smooth(method = lm, se = FALSE, lwd = 2, color = "dodgerblue") +
+  labs(x = "Gases del Trafico", y = "Niveles de insulina", title = "") +
   theme_bw() +
-  theme(
-    plot.title = element_text(hjust = 0.5, face = "bold", margin = margin(0, 0, 5, 0)),
-    axis.title.x = element_text(face = "bold"),
-    axis.title.y = element_text(face = "bold", angle = 90)
-  )
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", margin = margin(0, 0, 5, 0)),
+        axis.title.x = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold", angle = 90))
 ```
 
 ```{r}
-mod_gam_N <- gam(N ~ s(Gc), data = data_dag_inf, method = "REML")
+library(mgcv)
+library(gratia)
 ```
 
 ```{r}
-draw(mod_gam_N, residuals = TRUE, rug = FALSE) +
-  labs(x = "Glucosa acumulada (Gc)", y = "s(NO x)", 
-       title = "Efecto parcial de la glucosa acumulada sobre NOx") +
+mod_gam_N3 = gam(N ~ s(I), data = data_dag3, method = "REML")
+```
+
+```{r}
+draw(mod_gam_N3, residuals = TRUE, rug = FALSE) +
+  labs(x = "Gases del Trafico", y = "s(Niveles de insulina)", title = "Efecto parcial de los gases del trafico sobre la glucosa acumulada") +
   theme_bw() +
-  theme(
-    plot.title = element_text(hjust = 0.5, face = "bold", margin = margin(0, 0, 5, 0)),
-    axis.title.x = element_text(face = "bold"),
-    axis.title.y = element_text(face = "bold", angle = 90),
-    legend.title = element_text(hjust = 0.5, face = "bold"),
-    legend.text = element_text(hjust = 0.5),
-    strip.text = element_text(hjust = 0.5, face = "bold", margin = margin(2, 3, 3, 3)),
-    plot.subtitle = element_text(hjust = 0.5, face = "bold", size = 10, margin = margin(0, 0, 5, 0))
-  )
+  theme(plot.title = element_text(hjust = 0.5, face = "bold",
+                                  margin = margin(0, 0, 5, 0)),
+        axis.title.x = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold", angle = 90),
+        legend.title = element_text(hjust = 0.5, face = "bold"),
+        legend.text = element_text(hjust = 0.5),
+        strip.text = element_text(hjust = 0.5, face = "bold",
+                                  margin = margin(2, 3, 3, 3)),
+        plot.subtitle = element_text(hjust = 0.5, face = "bold",
+                                     size = 10,
+                                     margin = margin(0, 0, 5, 0)))
 ```
 
 ```{r}
-vars <- nodes(dag2)                                      # nodos del DAG (p.ej. P,N,A,Gc,Ga,I)
-data_sub <- data_dag_inf[, vars, drop = FALSE]                  # solo columnas del DAG
-data_sub <- data_sub |> 
-  mutate(across(where(is.factor), ~ as.numeric(as.character(.))),
-         across(where(is.integer), as.numeric))
-data_cc <- data_sub[complete.cases(data_sub), , drop = FALSE]   # sin NAs
+vars <- nodes(dag3)                                       # nodos del DAG (p.ej. P,N,A,Gc,Ga,I)
+data_sub <- data_dag3[, vars, drop = FALSE]               # solo columnas del DAG
+data_cc  <- data_sub[complete.cases(data_sub), , drop=FALSE]  # sin NAs
 
 # Diagnóstico
 cat("Filas totales:", nrow(data_sub), "\n")
 cat("Filas completas:", nrow(data_cc), "\n")
 
 # Puntuar con BIC gaussiano
-score(dag2, data = data_cc, type = "bic-g")
+score(dag3, data = data_cc, type = "bic-g")
 ```
+
