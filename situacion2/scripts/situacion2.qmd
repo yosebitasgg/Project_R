@@ -395,6 +395,7 @@ dag1 = model2network("[P][N][Gc|P:N][Ga|P:N][I|P:N]")
 ```{r}
 graphviz.plot(dag1, shape = "ellipse")
 ```
+
 ```{r}
 str(data_dag1)
 ```
@@ -427,6 +428,7 @@ ggplot(data_dag1, aes(x = N, y = Gc)) +
         axis.title.x = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold", angle = 90))
 ```
+
 ```{r}
 install.packages("gratia")
 ```
@@ -468,6 +470,163 @@ cat("Filas completas:", nrow(data_cc), "\n")
 
 # Puntuar con BIC gaussiano
 score(dag1, data = data_cc, type = "bic-g")
+<<<<<<< HEAD
 score(dag1, data = data_cc, type = "aic-g")
 
 ```
+=======
+```
+
+# DAG 2
+```{r}
+data1 <- contaminantes |>
+  select(Entidad, PM_2_5, NOx) |>
+  group_by(Entidad) |>
+  summarise(PM_2_5 = mean(PM_2_5, na.rm = TRUE),
+            NOx    = mean(NOx,    na.rm = TRUE),
+            .groups = "drop")
+
+data1 <- data1 |>
+  inner_join(catalogo_entidades, by = "Entidad") |>
+  arrange(codigo)
+
+head(data1)
+```
+
+```{r}
+data2 <- muestras |>
+  select(FOLIO_I, h0303, h0302, valor_HB1AC, valor_GLU_SUERO, valor_INSULINA, valor_PROTCREAC,valor_PCR)
+
+head(data2)
+```
+
+```{r}
+data3 <- info |>
+  select(FOLIO_I, h0317a, h0317g, entidad = entidad1, region, estrato)
+
+head(data3)
+```
+
+
+
+## Unión de tablas
+```{r}
+data2 <- data2 |> dplyr::distinct(FOLIO_I, .keep_all = TRUE)
+data3 <- data3 |> dplyr::distinct(FOLIO_I, .keep_all = TRUE)
+```
+
+```{r}
+data_ensanut <- data2 |>
+  inner_join(data3, by = "FOLIO_I")
+```
+
+```{r}
+aire_ent <- data1 |>
+  transmute(codigo, PM_2_5, NOx) 
+
+data_final <- data_ensanut |>
+  left_join(aire_ent, by = c("entidad" = "codigo"))
+
+View(data_final)
+```
+
+```{r}
+data2 <- data_final |> 
+  mutate(across(contains("valor"), ~ as.numeric(gsub(",", ".", .))))
+```
+
+
+```{r}
+data_dag_inf <- data2 |> 
+  select(NOx, PM_2_5, valor_PROTCREAC,valor_PCR,valor_HB1AC,valor_INSULINA,valor_GLU_SUERO, h0303,
+         h0317a, h0317g, region, estrato) |> drop_na()
+```
+
+
+```{r}
+colnames(data_dag_inf) = c("N","P", "Gc","CRP", "Hb", "I","Ga","Edad","EdNiv","EdGrad","Reg","Est")
+view(data_dag_inf)
+
+```
+
+```{r}
+cat_vars <- c("EdNiv", "EdGrad", "Reg", "Est")
+data_dag_inf[cat_vars] <- lapply(data_dag_inf[cat_vars], as.factor)
+```
+
+```{r}
+library(bnlearn)
+
+dag2 = model2network("[N][P][Edad][EdNiv][EdGrad|EdNiv][Est][Reg|Est][Gc|P:N][I|P:N][Ga|P:N][Hb|I:Ga:P:N][CRP|Gc:P:N:Edad]")
+
+
+```
+
+```{r}
+graphviz.plot(dag2, shape = "ellipse")
+```
+
+```{r}
+str(data_dag_inf)
+```
+
+```{r}
+data_dag_inf <- data_dag_inf |>
+  mutate(across(where(is.character), ~ as.numeric(gsub(",", ".", .))))
+```
+
+
+```{r}
+mod_lm = lm(N~P, data = data_dag_inf)
+coef(mod_lm)
+```
+
+```{r}
+ggplot(data_dag_inf, aes(x = N, y = Gc)) +
+  geom_point(color = "steelblue", alpha = 0.3) +
+  geom_smooth(method = "lm", se = FALSE, size = 1.2, color = "dodgerblue") +
+  labs(x = "NOx (N)", y = "Glucosa acumulada (Gc)", title = "Relación NOx y Glucosa Acumulada") +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", margin = margin(0, 0, 5, 0)),
+    axis.title.x = element_text(face = "bold"),
+    axis.title.y = element_text(face = "bold", angle = 90)
+  )
+```
+
+```{r}
+mod_gam_N <- gam(N ~ s(Gc), data = data_dag_inf, method = "REML")
+```
+
+```{r}
+draw(mod_gam_N, residuals = TRUE, rug = FALSE) +
+  labs(x = "Glucosa acumulada (Gc)", y = "s(NO x)", 
+       title = "Efecto parcial de la glucosa acumulada sobre NOx") +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", margin = margin(0, 0, 5, 0)),
+    axis.title.x = element_text(face = "bold"),
+    axis.title.y = element_text(face = "bold", angle = 90),
+    legend.title = element_text(hjust = 0.5, face = "bold"),
+    legend.text = element_text(hjust = 0.5),
+    strip.text = element_text(hjust = 0.5, face = "bold", margin = margin(2, 3, 3, 3)),
+    plot.subtitle = element_text(hjust = 0.5, face = "bold", size = 10, margin = margin(0, 0, 5, 0))
+  )
+```
+
+```{r}
+vars <- nodes(dag2)                                      # nodos del DAG (p.ej. P,N,A,Gc,Ga,I)
+data_sub <- data_dag_inf[, vars, drop = FALSE]                  # solo columnas del DAG
+data_sub <- data_sub |> 
+  mutate(across(where(is.factor), ~ as.numeric(as.character(.))),
+         across(where(is.integer), as.numeric))
+data_cc <- data_sub[complete.cases(data_sub), , drop = FALSE]   # sin NAs
+
+# Diagnóstico
+cat("Filas totales:", nrow(data_sub), "\n")
+cat("Filas completas:", nrow(data_cc), "\n")
+
+# Puntuar con BIC gaussiano
+score(dag2, data = data_cc, type = "bic-g")
+```
+>>>>>>> f336b6585db90486baad8e13b0f23a21198953f9

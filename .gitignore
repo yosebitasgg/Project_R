@@ -2,3 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
+entrega1.qmd
+
+# R / Quarto temporales
+.RDataTmp*
+scripts/entrega1.html

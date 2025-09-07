@@ -13,22 +13,28 @@ editor: source
 ### Extracción de datos
 
 ```{r}
-data = read.csv("../data/eod_2017_csv/tviaje_eod2017/conjunto_de_datos/tviaje.csv", stringsAsFactors = TRUE)
-```
-```{r}
-data2 = read.csv("../data/eod_2017_csv/ttransporte_eod2017/conjunto_de_datos/ttransporte.csv", stringsAsFactors = TRUE)
+data = read.csv("../data/tviaje_eod2017/conjunto_de_datos/tviaje.csv", stringsAsFactors = TRUE)
+head(data)
 ```
 
 
+<<<<<<< HEAD
+
+#### Diccinario de columnas:
+=======
 #### Diccionario de columnas:
+>>>>>>> 7d8b7f066b52055e44e38e2a9485033327617d8a
 
 ```{r}
-diccionario = read.csv("../data/eod_2017_csv/tviaje_eod2017/diccionario_de_datos/diccionario_datos_tviaje.csv", stringsAsFactors = TRUE)
+diccionario = read.csv("../data/tviaje_eod2017/diccionario_de_datos/diccionario_datos_tviaje.csv", stringsAsFactors = TRUE)
+diccionario
 ```
-```{r}
-diccionario2 = read.csv("../data/eod_2017_csv/ttransporte_eod2017/diccionario_de_datos/diccionario_datos_ttransporte.csv", stringsAsFactors = TRUE)
-```
+<<<<<<< HEAD
+
+Se renombraran las columnas de esta manera
+=======
 **Se renombrarán las columnas de esta manera**
+>>>>>>> 7d8b7f066b52055e44e38e2a9485033327617d8a
 
 edad = A
 
@@ -121,7 +127,7 @@ names(df_seleccionado) = c("A", "S", "D", "E", "T1", "T2",
 ```
 
 ```{r}
-sexo = read.csv("../data/eod_2017_csv/tviaje_eod2017/catalogos/sexo.csv", stringsAsFactors = TRUE)
+sexo = read.csv("../data/tviaje_eod2017/catalogos/sexo.csv", stringsAsFactors = TRUE)
 head(sexo)
 ```
 

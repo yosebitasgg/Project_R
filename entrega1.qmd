@@ -203,6 +203,9 @@ prob_1_S <- cpquery(bn, event = ((Day == "1") & (C == "1")), evidence = ((S == "
 
 prob_1_S
 ```
+#### Conclusión
+La probabilidad de que una persona viaje entre semana con un transporte privado dado que sea una mujer entre 60 y 80 años es de 0.5742265.
+
 ## Querie 4:
 
 ¿Los viajes en estratos bajos tienden a ser más largos en transporte público que en automóvil?
