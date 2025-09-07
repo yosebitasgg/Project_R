@@ -285,21 +285,14 @@ En "ensanut2022_socdem.csv" se encontraron las siguientes covariables:
 - `PM_2_5`: partículas finas que entran en pulmón y sangre.  
 - `NOx`: gases del tráfico que afectan metabolismo y respiración.  
 
-### Nodos de ajuste (covariables, padres de los biomarcadores)
-- `h0303` — Edad: riesgo de diabetes aumenta con la edad.  
-- `h0302` — Sexo: diferencias biológicas en metabolismo.  
-- `h0317a/g` — Escolaridad: nivel educativo como proxy socioeconómico.  
-- `region`, `estrato` — Localización urbano-rural que determina exposición ambiental.  
-
 ### Nodos hijos (outcomes/biomarcadores)
 - `valor_HB1AC`: glucosa acumulada en sangre (3 meses).  
 - `valor_GLU_SUERO`: nivel actual de glucosa en suero.  
 - `valor_INSULINA`: hormona que regula el azúcar en sangre.  
 
-### Estructura conceptual
+### DAG
 - `PM_2_5` → {`HB1AC`, `GLU_SUERO`, `INSULINA`}  
 - `NOx` → {`HB1AC`, `GLU_SUERO`, `INSULINA`}  
-- `Edad`, `Sexo`, `Escolaridad`, `Región/Estrato` → {`HB1AC`, `GLU_SUERO`, `INSULINA`}  
 
 
 
@@ -475,4 +468,6 @@ cat("Filas completas:", nrow(data_cc), "\n")
 
 # Puntuar con BIC gaussiano
 score(dag1, data = data_cc, type = "bic-g")
+score(dag1, data = data_cc, type = "aic-g")
+
 ```
