@@ -404,7 +404,7 @@ crop_fit$Ga
 ```
 
 ```{r}
-mod_lm = lm(N~P, data = data_dag1)
+mod_lm = lm(N~Gc, data = data_dag1)
 coef(mod_lm)
 ```
 
@@ -817,13 +817,17 @@ data5 <- data_final3 |>
 
 
 ```{r}
-data_dag_inf <- data5 |> 
+data_dag_inf <- data_final3 |> 
   select(NOx, PM_2_5, valor_PROTCREAC,valor_PCR,valor_HB1AC,valor_INSULINA,valor_GLU_SUERO, h0302) |> drop_na()
+```
+```{r}
+conteo_1 <- sum(data_dag_inf$h0302 == 2, na.rm = TRUE)
+conteo_1
 ```
 
 
 ```{r}
-colnames(data_dag_inf) = c("N","P", "Gc","CRP", "Hb", "I","Ga", "A")
+colnames(data_dag_inf) = c("N","P", "Gc","CRP", "Hb", "I","Ga", "S")
 view(data_dag_inf)
 
 ```
@@ -831,10 +835,11 @@ view(data_dag_inf)
 - La 'edad' influye en los biomarcadores.
 - No es efecto de la contaminación.
 - Lo adecuado es integrarlo como padre adicional.
+
 ```{r}
 library(bnlearn)
 
-dag2 = model2network("[N][P][A][Gc|P:N:A][I|P:N:A][Ga|P:N:A][Hb|I:Ga:P:N:A][CRP|Gc:P:N:A]")
+dag2 = model2network("[N][P][S][Gc|P:N:S][I|P:N:S][Ga|P:N:S][Hb|I:Ga:P:N:S][CRP|Gc:P:N:S]")
 
 
 ```
@@ -858,7 +863,7 @@ crop_fit = bn.fit(dag2, data = data_dag_inf)
 
 
 ```{r}
-mod_lm = lm(N~P, data = data_dag_inf)
+mod_lm = lm(N~Gc, data = data_dag_inf)
 coef(mod_lm)
 ```
 
@@ -912,6 +917,80 @@ score(dag2, data = data_cc, type = "bic-g")
 score(dag2, data = data_cc, type = "aic-g")
 ```
 
->   Tenemos un score **BIC** de `-9963.146`
+> Tras drop_na(), quedaron muy pocas filas completas. Esto genera varianzas residuales nulas o colinealidad en alguna regresión del DAG, haciendo que el score tienda a -infinito.
 
->   Tenemos un score **AIC** de `-9909.397`
+
+# Queries
+
+## Supuestos de valores aceptables (DAG 2 con sexo, solo mujeres)
+
+Los siguientes rangos se consideran **aceptables** para las variables incluidas en la DAG 2.  
+Los valores fuera de estos límites se interpretan como **no aceptables** (posible error, condición clínica o exposición extrema).
+
+### Contaminantes (fuentes fijas: energía/industria)
+
+- **NOx (N)**: 10 – 400 µg/m³  
+- **PM₂.₅ (P)**: 5 – 300 µg/m³  
+
+> Valores fuera de este rango se consideran atípicos en contextos industriales fijos.
+
+---
+
+### Biomarcadores inflamatorios y metabólicos
+
+- **Proteína C Reactiva ultrasensible (Gc, PCR-us)**: 0 – 10 mg/L  
+- **Proteína C Reactiva (CRP)**: 0 – 30 mg/dL  
+- **Glucosa sérica (Ga)**: 70 – 100 mg/dL (ayuno normal en mujeres)  
+- **Insulina (I)**: 5 – 25 µIU/mL (ayuno, rango fisiológico en mujeres)  
+- **Hemoglobina glucosilada (Hb, HbA1c)**:  
+  - < 5.7 % → Normal  
+  - 5.7 – 6.4 % → Prediabetes  
+  - ≥ 6.5 % → Diabetes  
+- **Hemoglobina total (Hb fisiológica, g/dL)**: 12.3 – 15.3 g/dL en mujeres
+
+---
+
+### Covariable
+
+- **Sexo (S)**: Solo se incluyen **mujeres** (valor esperado: "M" o equivalente codificado).  
+
+---
+
+### Referencias
+
+- Asociación Americana de Diabetes (ADA) — [diabetes.org](https://diabetes.org/about-diabetes/a1c?utm_source=chatgpt.com)  
+- Cleveland Clinic — [my.clevelandclinic.org](https://my.clevelandclinic.org/health/diagnostics/9731-a1c?utm_source=chatgpt.com)  
+- Nourish Health — [usenourish.com](https://www.usenourish.com/blog/what-is-a-normal-insulin-level-for-a-woman?utm_source=chatgpt.com)  
+- ZOE Science & Nutrition — [zoe.com](https://zoe.com/learn/what-are-normal-insulin-levels-for-women?srsltid=AfmBOoreNOiY6ryRsOlyKj1BtZrhgjLUZ3jzi35XAGvxs1roYLvysrep&utm_source=chatgpt.com)  
+- Medscape — [emedicine.medscape.com](https://emedicine.medscape.com/article/2089224-overview?utm_source=chatgpt.com)  
+
+## Querie 1
+
+```{r}
+nodes(crop_fit)
+```
+```{r}
+conteo_N_400 <- sum(data_dag_inf$N > 400, na.rm = TRUE)
+conteo_N_400
+```
+```{r}
+total_filas <- nrow(data_dag_inf)
+total_filas
+```
+
+> ¿Cuál es la probabilidad de tener hiperinsulinemia `(I > 25 µIU/mL)` e hiperglucemia `(Ga > 100 mg/dL)` dado alta exposición a NOx `(N >= 400)` ?
+
+$$
+\mathbb{P}\big( I > 25 ,  Ga > 100 \;\big|\; N \geq 400 \big)
+$$
+```{r}
+set.seed(123)
+
+crop_fit_query <- bn.fit(dag2, data = data_dag_inf)
+
+prob_query <- cpquery(crop_fit_query, event = (I > 25) & (Ga > 100), evidence = list(N = 400), method = "lw", n = 100000)
+
+prob_query
+```
+> La probabilidad es de `0.10696`
+
