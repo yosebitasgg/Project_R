@@ -526,26 +526,20 @@ data2 <- data_final |>
 
 ```{r}
 data_dag_inf <- data2 |> 
-  select(NOx, PM_2_5, valor_PROTCREAC,valor_PCR,valor_HB1AC,valor_INSULINA,valor_GLU_SUERO, h0303,
-         h0317a, h0317g, region, estrato) |> drop_na()
+  select(NOx, PM_2_5, valor_PROTCREAC,valor_PCR,valor_HB1AC,valor_INSULINA,valor_GLU_SUERO) |> drop_na()
 ```
 
 
 ```{r}
-colnames(data_dag_inf) = c("N","P", "Gc","CRP", "Hb", "I","Ga","Edad","EdNiv","EdGrad","Reg","Est")
+colnames(data_dag_inf) = c("N","P", "Gc","CRP", "Hb", "I","Ga")
 view(data_dag_inf)
 
 ```
 
 ```{r}
-cat_vars <- c("EdNiv", "EdGrad", "Reg", "Est")
-data_dag_inf[cat_vars] <- lapply(data_dag_inf[cat_vars], as.factor)
-```
-
-```{r}
 library(bnlearn)
 
-dag2 = model2network("[N][P][Edad][EdNiv][EdGrad|EdNiv][Est][Reg|Est][Gc|P:N][I|P:N][Ga|P:N][Hb|I:Ga:P:N][CRP|Gc:P:N:Edad]")
+dag2 = model2network("[N][P][Gc|P:N][I|P:N][Ga|P:N][Hb|I:Ga:P:N][CRP|Gc:P:N]")
 
 
 ```
@@ -561,6 +555,10 @@ str(data_dag_inf)
 ```{r}
 data_dag_inf <- data_dag_inf |>
   mutate(across(where(is.character), ~ as.numeric(gsub(",", ".", .))))
+```
+
+```{r}
+crop_fit = bn.fit(dag2, data = data_dag_inf)
 ```
 
 
