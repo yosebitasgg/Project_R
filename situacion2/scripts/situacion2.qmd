@@ -12,15 +12,6 @@ editor: source
 ---
 
 # Extracción de los datos
-```{r}
-install.packages("bnlearn")
-```
-```{r}
-install.packages("gratia")
-```
-```{r}
-install.packages("Rgraphviz")
-```
 
 ```{r}
 library(mgcv)
@@ -470,11 +461,8 @@ cat("Filas completas:", nrow(data_cc), "\n")
 
 # Puntuar con BIC gaussiano
 score(dag1, data = data_cc, type = "bic-g")
-<<<<<<< HEAD
 score(dag1, data = data_cc, type = "aic-g")
 
-```
-=======
 ```
 
 # DAG 2
