@@ -999,7 +999,7 @@ prob_query
 > ¿Cuál es la probabilidad de tener hiperglucemia `(Ga > 100 mg/dL)`dado alta exposición a PM2-5 `(N >= 150µg/m^3)` ?
 
 $$
-\mathbb{P}\big( Gc > 5mg/L \;\big|\; P \geq 150 \big)
+\mathbb{P}\big( Ga > 100 \;\big|\; P \geq 150 \big)
 $$
 ```{r}
 set.seed(123)
