@@ -1027,7 +1027,7 @@ crop_fit_query <- bn.fit(dag2, data = data_dag_inf)
 prob_query <- cpquery(
   crop_fit_query,
   event    = (Hb > 5.6) & (Hb < 6.5),
-  evidence = (N >= 400) & (P >= 300),
+  evidence = list(N = 400, P = 300),
   method   = "lw",
   n        = 1e5
 )
