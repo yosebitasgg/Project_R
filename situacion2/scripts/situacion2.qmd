@@ -994,3 +994,22 @@ prob_query
 ```
 > La probabilidad es de `0.10696`
 
+#Querie 2
+
+> ¿Cuál es la probabilidad de tener hiperglucemia `(Ga > 100 mg/dL)`dado alta exposición a PM2-5 `(N >= 150µg/m^3)` ?
+
+$$
+\mathbb{P}\big( Gc > 5mg/L \;\big|\; P \geq 150 \big)
+$$
+```{r}
+set.seed(123)
+
+crop_fit_query <- bn.fit(dag2, data = data_dag_inf)
+
+prob_query <- cpquery(crop_fit_query, event = (Ga > 100) , evidence = list(P = 150), method = "lw", n = 100000)
+
+prob_query
+```
+> La probabilidad es de `0.53368`
+
+
