@@ -994,7 +994,7 @@ prob_query
 ```
 > La probabilidad es de `0.10696`
 
-#Querie 2
+## Querie 2
 
 > ¿Cuál es la probabilidad de tener hiperglucemia `(Ga > 100 mg/dL)`dado alta exposición a PM2-5 `(P >= 150µg/m^3)` ?
 
@@ -1012,4 +1012,26 @@ prob_query
 ```
 > La probabilidad es de `0.53368`
 
+## Querie 3
 
+¿Cuál es la probabilidad de tener pre-diabetes dado que existe una exposición alta de NOx y PM_2_5?
+
+$$
+\mathbb{P}\big( Hb > 5.6, Hb < 6.5  \;\big|\; N \geq 400 , P \geq 300 \big)
+$$
+```{r}
+set.seed(123)
+
+crop_fit_query <- bn.fit(dag2, data = data_dag_inf)
+
+prob_query <- cpquery(
+  crop_fit_query,
+  event    = (Hb > 5.6) & (Hb < 6.5),
+  evidence = (N >= 400) & (P >= 300),
+  method   = "lw",
+  n        = 1e5
+)
+
+prob_query
+```
+> La probabilidad siendo de 0.21681
